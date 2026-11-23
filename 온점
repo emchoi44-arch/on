@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>온점 동아리실 PC (ONJEOM-PC)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse at 50% 115%, #3d7a2b 0%, #2f6421 28%, transparent 52%),
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.45) 0%, transparent 35%),
+        radial-gradient(circle at 75% 28%, rgba(255, 255, 255, 0.35) 0%, transparent 30%),
+        linear-gradient(180deg, #2a70c9 0%, #5ea2eb 48%, #98cbf8 72%, #4c8c38 73%, #2b5d1d 100%);
+      user-select: none;
+    }
+
+    /* Desktop Area */
+    #desktop {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 34px);
+      overflow: hidden;
+    }
+
+    /* Desktop Icons */
+    .desktop-icons {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      display: grid;
+      grid-template-rows: repeat(6, auto);
+      grid-auto-flow: column;
+      gap: 12px 18px;
+      z-index: 1;
+    }
+
+    .win-icon {
+      width: 78px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 4px;
+      border: 1px solid transparent;
+      border-radius: 3px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .win-icon:hover {
+      background: rgba(11, 97, 255, 0.25);
+      border: 1px dotted rgba(255, 255, 255, 0.75);
+    }
+
+    .win-icon-img {
+      width: 36px;
+      height: 36px;
+      font-size: 28px;
+      line-height: 36px;
+      filter: drop-shadow(1px 2px 2px rgba(0, 0, 0, 0.45));
+      position: relative;
+    }
+
+    .win-icon-img.locked::after {
+      content: '🔒';
+      position: absolute;
+      bottom: -3px;
+      right: -6px;
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .win-icon-label {
+      font-size: 11.5px;
+      color: #ffffff;
+      text-shadow: 1px 1px 2px #000, 0 0 3px #000;
+      line-height: 1.25;
+      word-break: keep-all;
+    }
+
+    /* Classic Windows XP / Classic Window */
+    .xp-window {
+      position: absolute;
+      background: #ece9d8;
+      border: 2px solid #0054e3;
+      border-radius: 6px 6px 2px 2px;
+      box-shadow: 3px 5px 16px rgba(0, 0, 0, 0.45);
+      display: none;
+      flex-direction: column;
+      min-width: 320px;
+      max-width: 95vw;
+      max-height: calc(100vh - 54px);
+      overflow: hidden;
+      user-select: text;
+    }
+
+    .xp-window.open {
+      display: flex;
+    }
+
+    .xp-window.minimized {
+      display: none !important;
+    }
+
+    .xp-window.maximized {
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: calc(100vh - 34px) !important;
+      max-width: 100% !important;
+      max-height: calc(100vh - 34px) !important;
+      border-radius: 0;
+    }
+
+    .xp-window.inactive {
+      border-color: #7b96ce;
+    }
+
+    .xp-titlebar {
+      height: 28px;
+      background: linear-gradient(180deg, #3b8aff 0%, #0058ee 15%, #0055ea 85%, #003cb3 100%);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5px 0 8px;
+      cursor: move;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .xp-window.inactive .xp-titlebar {
+      background: linear-gradient(180deg, #9db9eb 0%, #7a96df 100%);
+    }
+
+    .xp-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .xp-win-btns {
+      display: flex;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    .xp-ctrl {
+      width: 21px;
+      height: 21px;
+      border: 1px solid #ffffff;
+      border-radius: 3px;
+      background: linear-gradient(180deg, #6ba7ff 0%, #1c64e0 100%);
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 18px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .xp-ctrl:hover {
+      filter: brightness(1.12);
+    }
+
+    .xp-ctrl.close {
+      background: linear-gradient(180deg, #f38873 0%, #d8361c 100%);
+    }
+
+    /* Menu Bar & Address Bar */
+    .menubar {
+      background: #ece9d8;
+      border-bottom: 1px solid #aca899;
+      padding: 2px 8px;
+      font-size: 11.5px;
+      color: #000;
+      display: flex;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .menubar span {
+      padding: 1px 4px;
+    }
+
+    .menubar span:hover {
+      background: #316ac5;
+      color: #fff;
+    }
+
+    .address-bar {
+      background: #ece9d8;
+      border-bottom: 1px solid #aca899;
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .address-input {
+      flex: 1;
+      background: #ffffff;
+      border: 1px solid #7f9db9;
+      padding: 2px 6px;
+      font-size: 12px;
+      color: #000;
+    }
+
+    /* Window Inner Content */
+    .xp-body {
+      flex: 1;
+      overflow-y: auto;
+      font-size: 13.5px;
+      line-height: 1.65;
+      color: #111;
+    }
+
+    .notepad-page {
+      background: #ffffff;
+      padding: 16px 18px;
+      min-height: 100%;
+      font-size: 13.5px;
+    }
+
+    .dialog-page {
+      background: #ece9d8;
+      padding: 14px 16px;
+      min-height: 100%;
+    }
+
+    .group-box {
+      border: 1px solid #d0ccc0;
+      box-shadow: inset 1px 1px 0 #fff;
+      border-radius: 4px;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: #f5f3ea;
+    }
+
+    .group-box legend {
+      font-size: 12px;
+      font-weight: 700;
+      color: #003399;
+      padding: 0 5px;
+    }
+
+    .white-box {
+      background: #ffffff;
+      border: 1px solid #7f9db9;
+      padding: 12px 14px;
+      margin: 10px 0;
+    }
+
+    /* Explorer Split Layout */
+    .explorer-wrap {
+      display: grid;
+      grid-template-columns: 165px 1fr;
+      min-height: 360px;
+      height: 100%;
+      background: #ffffff;
+    }
+
+    @media (max-width: 640px) {
+      .explorer-wrap { grid-template-columns: 1fr; }
+    }
+
+    .explorer-left {
+      background: linear-gradient(180deg, #7ba2e7 0%, #6375d6 100%);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .task-panel {
+      background: #ffffff;
+      border-radius: 4px;
+      overflow: hidden;
+      font-size: 12px;
+    }
+
+    .task-panel-head {
+      background: linear-gradient(90deg, #ffffff 0%, #c6d3f7 100%);
+      color: #215dc6;
+      font-weight: 700;
+      padding: 5px 8px;
+      font-size: 11.5px;
+    }
+
+    .task-panel-body {
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .folder-link {
+      background: none;
+      border: none;
+      text-align: left;
+      font-size: 12px;
+      color: #215dc6;
+      cursor: pointer;
+      padding: 3px 4px;
+      font-family: inherit;
+      border-radius: 2px;
+    }
+
+    .folder-link:hover {
+      text-decoration: underline;
+      background: #eef3ff;
+    }
+
+    .folder-link.active {
+      background: #316ac5;
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .folder-link.excluded {
+      color: #888;
+      text-decoration: line-through;
+    }
+
+    .explorer-right {
+      padding: 14px 16px;
+      overflow-y: auto;
+    }
+
+    /* Classic Buttons & Inputs */
+    .xp-btn {
+      background: linear-gradient(180deg, #ffffff 0%, #ece9d8 85%, #d6d0c0 100%);
+      border: 1px solid #003c74;
+      border-radius: 3px;
+      padding: 5px 12px;
+      font-size: 12.5px;
+      color: #000;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .xp-btn:hover {
+      box-shadow: inset 0 0 0 1px #f7b754;
+    }
+
+    .xp-btn:active {
+      background: #dcd8c8;
+    }
+
+    .xp-btn.primary {
+      font-weight: 700;
+      box-shadow: inset 0 0 0 1px #5787d6;
+    }
+
+    .xp-btn.danger {
+      border-color: #9b1c1c;
+      color: #9b1c1c;
+      font-weight: 700;
+    }
+
+    .xp-input {
+      background: #ffffff;
+      border: 1px solid #7f9db9;
+      padding: 6px 9px;
+      font-size: 13.5px;
+      font-family: inherit;
+      color: #000;
+    }
+
+    .xp-input:focus {
+      outline: 1px solid #0054e3;
+    }
+
+    /* Quiz Options */
+    .quiz-item {
+      background: #ffffff;
+      border: 1px solid #aca899;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+    }
+
+    .quiz-opts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .quiz-opt {
+      background: #f5f4ee;
+      border: 1px solid #7f9db9;
+      padding: 4px 9px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .quiz-opt.picked {
+      background: #316ac5;
+      color: #ffffff;
+      border-color: #003c74;
+      font-weight: 700;
+    }
+
+    /* Letter Lines */
+    .letter-scroll {
+      overflow-x: auto;
+    }
+
+    .letter-line {
+      padding: 3px 0;
+      font-size: 13.5px;
+      white-space: nowrap;
+    }
+
+    /* Statement Cards */
+    .stmt-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 700px) {
+      .stmt-grid { grid-template-columns: 1fr; }
+    }
+
+    .stmt-box {
+      background: #ffffff;
+      border: 1px solid #7f9db9;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    /* Feedback Box */
+    .sys-alert {
+      margin-top: 10px;
+      padding: 9px 12px;
+      border: 1px solid #aca899;
+      font-size: 12.5px;
+      display: none;
+      line-height: 1.6;
+    }
+
+    .sys-alert.err {
+      display: block;
+      background: #fff0f0;
+      border-color: #cc0000;
+      color: #990000;
+    }
+
+    .sys-alert.ok {
+      display: block;
+      background: #eef9f0;
+      border-color: #2e8540;
+      color: #155724;
+    }
+
+    .sys-alert.hint {
+      display: block;
+      background: #fffbe6;
+      border-color: #d4a017;
+      color: #664d03;
+    }
+
+    /* Taskbar */
+    #xp-taskbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 34px;
+      background: linear-gradient(180deg, #3168d5 0%, #245edb 12%, #1941a5 100%);
+      border-top: 1px solid #5995ff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 9999;
+    }
+
+    .task-left {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      overflow-x: auto;
+      gap: 4px;
+    }
+
+    .start-btn {
+      height: 100%;
+      padding: 0 14px 0 10px;
+      background: linear-gradient(180deg, #52b749 0%, #3b9c33 20%, #2b7e24 90%, #1d5d17 100%);
+      border: none;
+      border-right: 1px solid #164811;
+      border-radius: 0 10px 10px 0;
+      color: #ffffff;
+      font-size: 13.5px;
+      font-weight: 700;
+      font-style: italic;
+      text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.55);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .start-btn:hover {
+      filter: brightness(1.08);
+    }
+
+    .task-win-btn {
+      height: 25px;
+      max-width: 155px;
+      padding: 0 10px;
+      background: linear-gradient(180deg, #4f85ee 0%, #2c62d0 100%);
+      border: 1px solid #1b439c;
+      border-radius: 3px;
+      color: #ffffff;
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: inherit;
+    }
+
+    .task-win-btn.active {
+      background: linear-gradient(180deg, #1b439c 0%, #2857bd 100%);
+      box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.45);
+      font-weight: 700;
+    }
+
+    .system-tray {
+      height: 100%;
+      background: linear-gradient(180deg, #1290e8 0%, #0d72c9 100%);
+      border-left: 1px solid #095299;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #ffffff;
+      font-size: 11.5px;
+      flex-shrink: 0;
+    }
+
+    .tray-sound-btn {
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 3px;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .tray-sound-btn:hover {
+      background: rgba(255, 255, 255, 0.28);
+    }
+
+    .tray-sound-btn.playing {
+      background: rgba(255, 255, 255, 0.92);
+      color: #0d5099;
+      border-color: #ffffff;
+    }
+
+    /* Start Menu Popup */
+    #start-menu {
+      position: fixed;
+      bottom: 34px;
+      left: 0;
+      width: 320px;
+      background: #ffffff;
+      border: 2px solid #0054e3;
+      border-radius: 6px 6px 0 0;
+      box-shadow: 4px -4px 18px rgba(0, 0, 0, 0.45);
+      display: none;
+      flex-direction: column;
+      z-index: 10000;
+      overflow: hidden;
+    }
+
+    #start-menu.open {
+      display: flex;
+    }
+
+    .start-head {
+      background: linear-gradient(180deg, #1f65d6 0%, #1049ad 100%);
+      color: #ffffff;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .start-avatar {
+      width: 36px;
+      height: 36px;
+      background: #e5eefc;
+      color: #1049ad;
+      border: 2px solid #ffffff;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .start-cols {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      border-top: 1px solid #e0983b;
+    }
+
+    .start-left {
+      background: #ffffff;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .start-right {
+      background: #d3e5fa;
+      border-left: 1px solid #95bdee;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .start-item {
+      background: none;
+      border: none;
+      text-align: left;
+      padding: 6px 8px;
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 3px;
+      font-family: inherit;
+      color: #111;
+    }
+
+    .start-item:hover {
+      background: #316ac5;
+      color: #ffffff;
+    }
+
+    .start-foot {
+      background: linear-gradient(180deg, #3c7be2 0%, #1d57ba 100%);
+      padding: 6px 10px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      #desktop {
+        overflow-y: auto;
+        padding: 10px;
+      }
+      .desktop-icons {
+        position: static;
+        grid-template-rows: none;
+        grid-auto-flow: row;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        margin-bottom: 12px;
+      }
+      .win-icon {
+        width: 100%;
+      }
+      .xp-window {
+        position: static !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: none !important;
+        margin-bottom: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 배경음악 오디오 (같은 폴더에 bgm.mp3 파일을 넣어주세요) -->
+  <audio id="bgm-audio" src="bgm.mp3" loop preload="auto"></audio>
+
+  <div id="desktop">
+    <!-- Desktop Icons -->
+    <div class="desktop-icons">
+      <div class="win-icon" onclick="openWin('win-mypc')">
+        <div class="win-icon-img">🖥️</div>
+        <span class="win-icon-label">내 컴퓨터</span>
+      </div>
+      <div class="win-icon" onclick="openWin('win-trash')">
+        <div class="win-icon-img">🗑️</div>
+        <span class="win-icon-label">휴지통</span>
+      </div>
+      <div class="win-icon" onclick="openWin('win-case')">
+        <div class="win-icon-img">📝</div>
+        <span class="win-icon-label">사건개요.txt</span>
+      </div>
+      <div class="win-icon" onclick="openWin('win-suspects')">
+        <div class="win-icon-img">📁</div>
+        <span class="win-icon-label">알리바이</span>
+      </div>
+      <div class="win-icon" onclick="openWin('win-locker')">
+        <div class="win-icon-img locked" id="ico-locker">📁</div>
+        <span class="win-icon-label">잠금폴더</span>
+      </div>
+      <div class="win-icon" onclick="openWin('win-final')">
+        <div class="win-icon-img locked" id="ico-final">⚖️</div>
+        <span class="win-icon-label">최종_심문</span>
+      </div>
+      <div class="win-icon" onclick="openWin('win-truth')">
+        <div class="win-icon-img locked" id="ico-truth">📕</div>
+        <span class="win-icon-label">사건의_전말.pdf</span>
+      </div>
+    </div>
+
+    <!-- WINDOW: MY COMPUTER -->
+    <div class="xp-window" id="win-mypc" style="top: 60px; left: 220px; width: 420px; z-index: 10;">
+      <div class="xp-titlebar" data-win="win-mypc">
+        <span class="xp-title">🖥️ 내 컴퓨터</span>
+        <div class="xp-win-btns">
+          <button class="xp-ctrl" onclick="minWin('win-mypc')">_</button>
+          <button class="xp-ctrl" onclick="maxWin('win-mypc')">□</button>
+          <button class="xp-ctrl close" onclick="closeWin('win-mypc')">×</button>
+        </div>
+      </div>
+      <div class="address-bar">
+        <span>주소(D)</span>
+        <div class="address-input">🖥️ 내 컴퓨터</div>
+      </div>
+      <div class="xp-body dialog-page">
+        <fieldset class="group-box">
+          <legend>시스템 정보</legend>
+          <p style="font-size:12.5px;">
+            • 컴퓨터 이름: <strong>ONJEOM-CLUB-PC</strong><br>
+            • 위치: 모교 본관 동아리실 구석 자리<br>
+            • 현재 로그인 사용자: <strong>A (졸업생)</strong><br>
+            • 사건 폴더 경로: <code>C:\온점\202X_미제사건\</code>
+          </p>
+        </fieldset>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="xp-btn primary" onclick="openWin('win-case')">📝 사건개요.txt 열기</button>
+          <button class="xp-btn" onclick="openWin('win-suspects')">📁 알리바이 폴더 열기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- WINDOW: RECYCLE BIN -->
+    <div class="xp-window" id="win-trash" style="top: 100px; left: 260px; width: 430px; z-index: 10;">
+      <div class="xp-titlebar" data-win="win-trash">
+        <span class="xp-title">🗑️ 휴지통</span>
+        <div class="xp-win-btns">
+          <button class="xp-ctrl" onclick="minWin('win-trash')">_</button>
+          <button class="xp-ctrl" onclick="maxWin('win-trash')">□</button>
+          <button class="xp-ctrl close" onclick="closeWin('win-trash')">×</button>
+        </div>
+      </div>
+      <div class="address-bar">
+        <span>주소(D)</span>
+        <div class="address-input">🗑️ 휴지통</div>
+      </div>
+      <div class="xp-body notepad-page">
+        <p style="font-size:12px; color:#555; margin-bottom:10px;">삭제된 날짜: 202X-12-28</p>
+        <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
+          <thead>
+            <tr style="background:#ece9d8; border-bottom:1px solid #aca899;">
+              <th style="text-align:left; padding:5px;">이름</th>
+              <th style="text-align:left; padding:5px;">원래 위치</th>
+              <th style="text-align:left; padding:5px;">크기</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #eee;">
+              <td style="padding:6px 5px;">📄 축제_포스터_최종_진짜최종.psd</td>
+              <td style="padding:6px 5px;">C:\온점\디자인</td>
+              <td style="padding:6px 5px;">14.2 MB</td>
+            </tr>
+            <tr style="border-bottom:1px solid #eee;">
+              <td style="padding:6px 5px;">📄 동아리_간식_메모.txt</td>
+              <td style="padding:6px 5px;">C:\온점\예산</td>
+              <td style="padding:6px 5px;">2 KB</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="white-box" style="font-size:12px; color:#444; background:#fafafa;">
+          ※ 사건 조사에 필요한 문서와 폴더는 바탕화면에 정리되어 있습니다.
+        </div>
+      </div>
+    </div>
+
+    <!-- WINDOW: CASE OVERVIEW (NOTEPAD) -->
+    <div class="xp-window open" id="win-case" style="top: 24px; left: 200px; width: 470px; z-index: 12;">
+      <div class="xp-titlebar" data-win="win-case">
+        <span class="xp-title">📝 사건개요.txt - 메모장</span>
+        <div class="xp-win-btns">
+          <button class="xp-ctrl" onclick="minWin('win-case')">_</button>
+          <button class="xp-ctrl" onclick="maxWin('win-case')">□</button>
+          <button class="xp-ctrl close" onclick="closeWin('win-case')">×</button>
+        </div>
+      </div>
+      <div class="menubar">
+        <span>파일(F)</span><span>편집(E)</span><span>서식(O)</span><span>보기(V)</span><span>도움말(H)</span>
+      </div>
+      <div class="xp-body notepad-page">
+        <div style="border-bottom:1px solid #ccc; padding-bottom:8px; margin-bottom:10px;">
+          <strong style="font-size:16px;">[동아리 「온점」 프로젝트 자료 실종 사건]</strong>
+        </div>
+
+        <p style="margin-bottom:10px;">
+          <strong>▶ 202X년 12월 28일 (축제 전날)</strong><br>
+          동아리 ‘온점’의 부원들이 아주 오래전부터 준비해 온 학교 축제 프로젝트. 자료를 보관하던 차장이 축제 전날 자료가 사라진 것을 인지했습니다.<br>
+          • 부장: “잘 관리했어야지!”<br>
+          • 차장: “나는 모르는 일이야! 어제까지는 있었어! 활동일지까지 사라졌어...”<br>
+          결국 축제는 엉망이 되었고, 부장과 차장의 큰 싸움 끝에 동아리는 와해되었습니다.
+        </p>
+
+        <p style="margin-bottom:10px;">
+          <strong>▶ 203X년 ?월 (현재)</strong><br>
+          오랜만에 모교 동아리실에 들른 <strong>A</strong>는 구석 상자에서 당시 사라졌던 <strong>활동일지</strong>를 발견합니다. 당시 부장은 차장이 자료를 잃어버리고 모른 체한다며 일지를 증거로 삼았지만, 일지를 펼쳐본 A는 이상한 점을 느낍니다.
+        </p>
+
+        <div class="white-box" style="background:#fffef5; border-color:#b59b59;">
+          <strong>[발견된 활동일지 기록 — 12월 27일]</strong><br>
+          “프로젝트 자료 정리 완료. 내일 부장에게 전달하고, 축제 준비 진행하면 완벽!”<br><br>
+          <strong style="color:#991b1b;">[일지 사이에서 떨어진 의문의 쪽지]</strong><br>
+          “수고했어. 안 들킨 거 확실하지? 내일 축제 끝나고 이야기 하자.”
+        </div>
+
+        <p style="font-size:12.5px; color:#444; margin-bottom:12px;">
+          A는 “차장이 잃어버렸다면 이렇게 자세히 일지를 남겼을 리 없어. 누군가 자료를 가져갔고, 차장에게 뒤집어씌운 것은 아닐까?”라고 생각하며 동아리 앨범에 적힌 전화번호로 핵심 부원 5명(B, C, D, E, F)에게 연락해 <strong>12월 27일 알리바이</strong>를 물었습니다.
+        </p>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="xp-btn primary" onclick="openWin('win-suspects')">📁 알리바이 폴더 열기</button>
+          <button class="xp-btn" onclick="openWin('win-locker')">📁 잠금폴더 열기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- WINDOW: SUSPECTS (FILE EXPLORER) -->
+    <div class="xp-window open" id="win-suspects" style="top: 85px; left: 520px; width: 510px; z-index: 13;">
+      <div class="xp-titlebar" data-win="win-suspects">
+        <span class="xp-title">📁 알리바이</span>
+        <div class="xp-win-btns">
+          <button class="xp-ctrl" onclick="minWin('win-suspects')">_</button>
+          <button class="xp-ctrl" onclick="maxWin('win-suspects')">□</button>
+          <button class="xp-ctrl close" onclick="closeWin('win-suspects')">×</button>
+        </div>
+      </div>
+      <div class="menubar">
+        <span>파일(F)</span><span>편집(E)</span><span>보기(V)</span><span>즐겨찾기(A)</span><span>도구(T)</span><span>도움말(H)</span>
+      </div>
+      <div class="address-bar">
+        <span>주소(D)</span>
+        <div class="address-input">📁 C:\온점_동아리\12월27일_알리바이</div>
+      </div>
+      <div class="xp-body">
+        <div class="explorer-wrap">
+          <div class="explorer-left">
+            <div class="task-panel">
+              <div class="task-panel-head">부원 알리바이 파일</div>
+              <div class="task-panel-body" id="suspect-sidebar"></div>
+            </div>
+            <div class="task-panel">
+              <div class="task-panel-head">탐문 조건</div>
+              <div class="task-panel-body" style="font-size:11.5px; color:#333;">
+                전화로 확인한 12월 27일(사건 전날) 알리바이입니다. (기억력 문제없음 가정)
+              </div>
+            </div>
+          </div>
+          <div class="explorer-right" id="suspect-detail-box"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WINDOW: LOCKED FOLDER (QUIZ LOCK + LETTER INSIDE) -->
+    <div class="xp-window" id="win-locker" style="top: 55px; left: 240px; width: 520px; z-index: 14;">
+      <div class="xp-titlebar" data-win="win-locker">
+        <span class="xp-title" id="locker-title">📁 잠금폴더 (잠김)</span>
+        <div class="xp-win-btns">
+          <button class="xp-ctrl" onclick="minWin('win-locker')">_</button>
+          <button class="xp-ctrl" onclick="maxWin('win-locker')">□</button>
+          <button class="xp-ctrl close" onclick="closeWin('win-locker')">×</button>
+        </div>
+      </div>
+      <div class="address-bar">
+        <span>주소(D)</span>
+        <div class="address-input" id="locker-address">📁 C:\온점_동아리\잠금폴더</div>
+      </div>
+      <div class="xp-body" id="locker-body"></div>
+    </div>
+
+    <!-- WINDOW: FINAL INTERROGATION -->
+    <div class="xp-window" id="win-final" style="top: 80px; left: 190px; width: 600px; z-index: 16;">
+      <div class="xp-titlebar" data-win="win-final">
+        <span class="xp-title" id="final-title">⚖️ 최종_심문</span>
+        <div class="xp-win-btns">
+          <button class="xp-ctrl" onclick="minWin('win-final')">_</button>
+          <button class="xp-ctrl" onclick="maxWin('win-final')">□</button>
+          <button class="xp-ctrl close" onclick="closeWin('win-final')">×</button>
+        </div>
+      </div>
+      <div class="address-bar">
+        <span>주소(D)</span>
+        <div class="address-input">⚖️ C:\온점_동아리\최종_심문</div>
+      </div>
+      <div class="xp-body dialog-page" id="final-body"></div>
+    </div>
+
+    <!-- WINDOW: TRUTH PDF -->
+    <div class="xp-window" id="win-truth" style="top: 40px; left: 230px; width: 540px; z-index: 17;">
+      <div class="xp-titlebar" data-win="win-truth">
+        <span class="xp-title">📕 사건의_전말.pdf - 문서 뷰어</span>
+        <div class="xp-win-btns">
+          <button class="xp-ctrl" onclick="minWin('win-truth')">_</button>
+          <button class="xp-ctrl" onclick="maxWin('win-truth')">□</button>
+          <button class="xp-ctrl close" onclick="closeWin('win-truth')">×</button>
+        </div>
+      </div>
+      <div class="xp-body" id="truth-body"></div>
+    </div>
+  </div>
+
+  <!-- Start Menu -->
+  <div id="start-menu">
+    <div class="start-head">
+      <div class="start-avatar">🕵️</div>
+      <span>사용자: A (온점 동아리실 PC)</span>
+    </div>
+    <div class="start-cols">
+      <div class="start-left">
+        <button class="start-item" onclick="openFromStart('win-case')">📝 사건개요.txt</button>
+        <button class="start-item" onclick="openFromStart('win-suspects')">📁 알리바이</button>
+        <button class="start-item" onclick="openFromStart('win-locker')">📁 잠금폴더</button>
+        <button class="start-item" onclick="openFromStart('win-final')">⚖️ 최종_심문</button>
+        <button class="start-item" onclick="openFromStart('win-truth')">📕 사건의_전말.pdf</button>
+      </div>
+      <div class="start-right">
+        <button class="start-item" onclick="openFromStart('win-mypc')">🖥️ 내 컴퓨터</button>
+        <button class="start-item" onclick="openFromStart('win-trash')">🗑️ 휴지통</button>
+        <hr style="border:none; border-top:1px solid #95bdee; margin:4px 0;">
+        <button class="start-item" onclick="arrangeAll(); closeStartMenu();">🪟 창 위치 정렬</button>
+      </div>
+    </div>
+    <div class="start-foot">
+      <button class="xp-btn" onclick="resetAll(); closeStartMenu();">🔄 시스템 다시 시작 (초기화)</button>
+    </div>
+  </div>
+
+  <!-- Taskbar -->
+  <div id="xp-taskbar">
+    <div class="task-left">
+      <button class="start-btn" onclick="toggleStartMenu(event)">🪟 시작</button>
+      <div id="taskbar-list" style="display:flex; gap:4px; align-items:center;"></div>
+    </div>
+    <div class="system-tray">
+      <span title="네트워크 연결됨">🌐</span>
+      <button id="bgm-btn" class="tray-sound-btn" onclick="toggleBgm(event)" title="배경음악 켜기/끄기">🔇 BGM</button>
+      <span id="tray-clock">오후 12:00</span>
+    </div>
+  </div>
+
+  <script>
+    const suspects = [
+      {
+        id: 'B',
+        file: 'B_부장.txt',
+        role: '동아리 부장',
+        personality: '책임감이 강하고 원칙적임. 자신의 판단을 굽히지 않음 (고집이 셈).',
+        alibi: '사건 전날(27일) 오후 5시까지 동아리실(컴퓨터실)에서 축제 준비 상황을 점검.',
+        suspicious: '사건 발생 직후 C를 강하게 의심함. 다른 부원들의 의견을 제대로 듣지 않음.',
+        secret: '이미 12/26에 차장과 갈등이 있었음 (“프로젝트에 문제 생기면 네가 책임져”). 27일 6시 동아리 정기회의 참석.'
+      },
+      {
+        id: 'C',
+        file: 'C_차장.txt',
+        role: '프로젝트 총괄 & 차장',
+        personality: '꼼꼼하고 계획적임. 맡은 일에 책임감이 강하지만 표현이 서툼.',
+        alibi: '27일 오후 7시까지 동아리실에 남아 프로젝트 자료를 정리함.',
+        suspicious: '자료가 사라지기 전 마지막으로 관리한 인물. 자료를 어디에 보관했는지 혼자만 알고 있었음.',
+        secret: '27일 B와 다툰 후, 동아리를 그만둘 생각을 함.'
+      },
+      {
+        id: 'D',
+        file: 'D_기록.txt',
+        role: '기록 담당',
+        personality: '관찰력이 좋고 차분함. 세세한 사항을 잘 기억하지만 다른 사람의 일에 끼어드는 것을 꺼림.',
+        alibi: '27일 오후 4시 30분까지 활동 사진 및 활동 일지 정리 후 귀가.',
+        suspicious: '막상 27일 회의 사진은 남아 있지 않음.',
+        secret: '26일 B와 C가 다투는 장면을 목격했지만 이를 숨김.'
+      },
+      {
+        id: 'E',
+        file: 'E_디자인.txt',
+        role: '디자인 담당',
+        personality: '창의적이고 사교적임. 새로운 아이디어 내기를 좋아하지만 가끔 자기 주장이 강함.',
+        alibi: '27일 오후 6시 30분까지 컴퓨터실에서 축제 홍보물 수정. 이후 동아리실에 잠깐 들렀다가 귀가.',
+        suspicious: '홍보물 디자인 일부가 다른 동아리와 유사함.',
+        secret: '다른 동아리 부원에게 디자인 조언을 받음. B에게는 자신이 다 한 것이라 거짓말함.'
+      },
+      {
+        id: 'F',
+        file: 'F_예산.txt',
+        role: '예산 담당',
+        personality: '과묵하고 성실함. 시킨 일을 묵묵히 잘 해내지만 부원들이 어려워함.',
+        alibi: '27일 축제 준비 물품을 구매하러 외부에 다녀옴. 영수증을 제출하고 오후 6시 귀가.',
+        suspicious: '제출한 영수증의 구매 시각과 진술한 귀가 시각이 약간 맞지 않음.',
+        secret: '물품을 구매하러 가는 길에 아는 선배를 만나 잠깐 이야기를 나눔.'
+      }
+    ];
+
+    const quizzes = [
+      { q: 'QUIZ 1. 온점 첫 활동은 언제일까요?', opts: ['① 3/18', '② 3/25', '③ 4/1', '④ 4/8', '⑤ 4/15'] },
+      { q: 'QUIZ 2. 다음 중 동아리와 관련없는 책은?', opts: ['① 동물 농장', '② 로미오와 줄리엣', '③ 돈키호테', '④ 아몬드', '⑤ 시계태엽 오렌지'] },
+      { q: 'QUIZ 3. 동아리 시간에 먹은 떡볶이 총 가격은?', opts: ['① 157,200원', '② 159,200원', '③ 161,800원', '④ 164,300원', '⑤ 165,100원'] }
+    ];
+
+    const letterLines = [
+      '그날의 일을 아직도 기억합니다.',
+      '축제 준비로 모두가 바쁘던 날,',
+      '저는 누군가와 타협을 했고,',
+      '그 사람은 온점과는 인연이 없는 외부인이었습니다.',
+      '별 일 아니라고 생각했지만,',
+      '결국 그 일이 모두에게 큰 상처를 남겼습니다.',
+      '이제 와서 잘못과 진실을 밝히려니 두렵습니다.',
+      '하지만 더 이상 침묵해서만은 안 된다고 생각했습니다.',
+      '부디 그날의 일을 밝혀주세요.',
+      '직접 이름을 남기지는 못하지만,',
+      '이 편지에 작은 단서를 남겨둡니다.',
+      '언젠가는 모든 진실이 드러나기를 바랍니다.'
+    ];
+
+    const winNames = {
+      'win-mypc': '🖥️ 내 컴퓨터',
+      'win-trash': '🗑️ 휴지통',
+      'win-case': '📝 사건개요.txt',
+      'win-suspects': '📁 알리바이',
+      'win-locker': '📁 잠금폴더',
+      'win-final': '⚖️ 최종_심문',
+      'win-truth': '📕 사건의_전말.pdf'
+    };
+
+    let topZ = 20;
+    let currentSuspect = 'B';
+    let quizChoice = [null, null, null];
+    let lockerUnlocked = false;
+    let cipherSolved = false;
+    let cipherHintLevel = 0;
+    let cipherHintVisible = false;
+    let caseSolved = false;
+
+    // --- BGM Sound Control ---
+    const bgmAudio = document.getElementById('bgm-audio');
+    const bgmBtn = document.getElementById('bgm-btn');
+    let bgmPlaying = false;
+    let bgmUserToggled = false;
+    let bgmMissing = false;
+
+    bgmAudio.volume = 0.5;
+    bgmAudio.addEventListener('error', () => {
+      bgmMissing = true;
+      bgmPlaying = false;
+      updateBgmUI();
+    });
+
+    function updateBgmUI() {
+      if (bgmPlaying) {
+        bgmBtn.textContent = '🔊 BGM';
+        bgmBtn.classList.add('playing');
+        bgmBtn.title = '배경음악 켜짐 (클릭해서 끄기)';
+      } else {
+        bgmBtn.textContent = '🔇 BGM';
+        bgmBtn.classList.remove('playing');
+        bgmBtn.title = '배경음악 꺼짐 (클릭해서 켜기)';
+      }
+    }
+
+    function playBgm(fromUserClick = false) {
+      if (bgmMissing || bgmAudio.error) {
+        if (fromUserClick) {
+          alert('음악 파일을 찾을 수 없습니다.\nindex.html과 같은 폴더에 "bgm.mp3" 파일을 넣어주세요!');
+        }
+        return;
+      }
+      const p = bgmAudio.play();
+      if (p !== undefined) {
+        p.then(() => {
+          bgmPlaying = true;
+          updateBgmUI();
+        }).catch(() => {
+          bgmPlaying = false;
+          updateBgmUI();
+          if (fromUserClick && (bgmMissing || bgmAudio.error)) {
+            alert('음악 파일을 찾을 수 없습니다.\nindex.html과 같은 폴더에 "bgm.mp3" 파일을 넣어주세요!');
+          }
+        });
+      }
+    }
+
+    function pauseBgm() {
+      bgmAudio.pause();
+      bgmPlaying = false;
+      updateBgmUI();
+    }
+
+    function toggleBgm(e) {
+      e.stopPropagation();
+      bgmUserToggled = true;
+      if (bgmPlaying) {
+        pauseBgm();
+      } else {
+        playBgm(true);
+      }
+    }
+
+    // 사이트에서 첫 클릭 시 자동으로 음악 시작 (사용자가 먼저 끄지 않은 경우)
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('#bgm-btn')) return;
+      if (!bgmUserToggled && !bgmPlaying && !bgmMissing) {
+        playBgm(false);
+      }
+    }, { once: true });
+
+    // Window Functions
+    function openWin(id) {
+      const el = document.getElementById(id);
+      el.classList.add('open');
+      el.classList.remove('minimized');
+      if (id === 'win-locker') renderLockerWindow();
+      if (id === 'win-final') renderFinal();
+      if (id === 'win-truth') renderTruth();
+      focusWin(id);
+    }
+
+    function closeWin(id) {
+      const el = document.getElementById(id);
+      el.classList.remove('open', 'minimized', 'maximized');
+      updateTaskbar();
+    }
+
+    function minWin(id) {
+      document.getElementById(id).classList.add('minimized');
+      updateTaskbar();
+    }
+
+    function maxWin(id) {
+      const el = document.getElementById(id);
+      el.classList.toggle('maximized');
+      focusWin(id);
+    }
+
+    function focusWin(id) {
+      topZ += 1;
+      document.querySelectorAll('.xp-window').forEach(w => w.classList.add('inactive'));
+      const target = document.getElementById(id);
+      target.classList.remove('inactive');
+      target.style.zIndex = topZ;
+      updateTaskbar(id);
+    }
+
+    function toggleTaskWin(id) {
+      const el = document.getElementById(id);
+      if (el.classList.contains('minimized')) {
+        el.classList.remove('minimized');
+        focusWin(id);
+      } else if (!el.classList.contains('inactive')) {
+        minWin(id);
+      } else {
+        focusWin(id);
+      }
+    }
+
+    function updateTaskbar(activeId) {
+      const list = document.getElementById('taskbar-list');
+      const opens = Array.from(document.querySelectorAll('.xp-window.open'));
+      list.innerHTML = opens.map(w => {
+        const isActive = !w.classList.contains('minimized') && (activeId ? w.id === activeId : !w.classList.contains('inactive'));
+        return `<button class="task-win-btn ${isActive ? 'active' : ''}" onclick="toggleTaskWin('${w.id}')">${winNames[w.id]}</button>`;
+      }).join('');
+    }
+
+    function arrangeAll() {
+      const pos = {
+        'win-mypc': [60, 220],
+        'win-trash': [100, 260],
+        'win-case': [24, 200],
+        'win-suspects': [85, 520],
+        'win-locker': [55, 240],
+        'win-final': [80, 190],
+        'win-truth': [40, 230]
+      };
+      Object.entries(pos).forEach(([id, [t, l]]) => {
+        const el = document.getElementById(id);
+        el.classList.remove('maximized');
+        el.style.top = t + 'px';
+        el.style.left = l + 'px';
+      });
+    }
+
+    function toggleStartMenu(e) {
+      e.stopPropagation();
+      document.getElementById('start-menu').classList.toggle('open');
+    }
+
+    function closeStartMenu() {
+      document.getElementById('start-menu').classList.remove('open');
+    }
+
+    function openFromStart(id) {
+      closeStartMenu();
+      openWin(id);
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#start-menu') && !e.target.closest('.start-btn')) {
+        closeStartMenu();
+      }
+    });
+
+    function setupDrag() {
+      document.querySelectorAll('.xp-window').forEach(w => {
+        w.addEventListener('mousedown', () => focusWin(w.id));
+      });
+
+      document.querySelectorAll('.xp-titlebar').forEach(bar => {
+        bar.addEventListener('mousedown', (e) => {
+          if (e.target.closest('.xp-win-btns')) return;
+          if (window.innerWidth <= 768) return;
+
+          const win = document.getElementById(bar.dataset.win);
+          if (win.classList.contains('maximized')) return;
+          focusWin(win.id);
+
+          const sx = e.clientX, sy = e.clientY;
+          const ol = win.offsetLeft, ot = win.offsetTop;
+
+          function move(ev) {
+            const nx = ol + (ev.clientX - sx);
+            const ny = ot + (ev.clientY - sy);
+            win.style.left = Math.max(-win.offsetWidth + 100, Math.min(window.innerWidth - 100, nx)) + 'px';
+            win.style.top = Math.max(0, Math.min(window.innerHeight - 70, ny)) + 'px';
+          }
+          function up() {
+            document.removeEventListener('mousemove', move);
+            document.removeEventListener('mouseup', up);
+          }
+          document.addEventListener('mousemove', move);
+          document.addEventListener('mouseup', up);
+        });
+      });
+    }
+
+    function updateClock() {
+      const now = new Date();
+      let h = now.getHours();
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const ampm = h >= 12 ? '오후' : '오전';
+      h = h % 12 || 12;
+      document.getElementById('tray-clock').textContent = `${ampm} ${h}:${m}`;
+    }
+
+    function renderSuspects() {
+      const sidebar = document.getElementById('suspect-sidebar');
+      sidebar.innerHTML = suspects.map(s => {
+        const excluded = cipherSolved && (s.id === 'C' || s.id === 'D');
+        return `
+          <button class="folder-link ${currentSuspect === s.id ? 'active' : ''} ${excluded ? 'excluded' : ''}"
+            onclick="selectSuspect('${s.id}')">
+            📄 ${s.file}${excluded ? ' (제외)' : ''}
+          </button>
+        `;
+      }).join('');
+
+      const cur = suspects.find(s => s.id === currentSuspect);
+      const isEx = cipherSolved && (cur.id === 'C' || cur.id === 'D');
+      document.getElementById('suspect-detail-box').innerHTML = `
+        <div style="border-bottom:1px solid #ccc; padding-bottom:6px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+          <strong style="font-size:15px;">${cur.id} (${cur.role})</strong>
+          ${isEx ? '<span style="color:#b91c1c; font-size:12px; font-weight:700;">[용의자 제외됨]</span>' : ''}
+        </div>
+        <div style="font-size:13px; display:flex; flex-direction:column; gap:8px;">
+          <div><strong style="color:#003399;">[성격]</strong><br>${cur.personality}</div>
+          <div><strong style="color:#003399;">[12/27 알리바이]</strong><br>${cur.alibi}</div>
+          <div><strong style="color:#b45309;">[수상한 점]</strong><br>${cur.suspicious}</div>
+          <div><strong style="color:#991b1b;">[숨기는 사실]</strong><br>${cur.secret}</div>
+        </div>
+      `;
+    }
+
+    function selectSuspect(id) {
+      currentSuspect = id;
+      renderSuspects();
+    }
+
+    function renderLockerWindow() {
+      const body = document.getElementById('locker-body');
+      const titleEl = document.getElementById('locker-title');
+      const addrEl = document.getElementById('locker-address');
+
+      if (!lockerUnlocked) {
+        titleEl.textContent = '📁 잠금폴더 (잠김)';
+        addrEl.textContent = '📁 C:\\온점_동아리\\잠금폴더';
+        body.innerHTML = `
+          <div class="dialog-page">
+            <fieldset class="group-box">
+              <legend>동아리 부원 공용 잠금폴더</legend>
+              <p style="font-size:12.5px; margin-bottom:10px;">
+                부원들이 사용했던 잠금폴더입니다. 3개의 퀴즈를 풀고 비밀번호(3자리)를 입력하세요.
+              </p>
+              ${quizzes.map((item, qi) => `
+                <div class="quiz-item">
+                  <div style="font-weight:700; font-size:12.5px;">${item.q}</div>
+                  <div class="quiz-opts">
+                    ${item.opts.map((opt, oi) => `
+                      <button class="quiz-opt ${quizChoice[qi] === oi + 1 ? 'picked' : ''}"
+                        onclick="pickQuiz(${qi}, ${oi + 1})">${opt}</button>
+                    `).join('')}
+                  </div>
+                </div>
+              `).join('')}
+            </fieldset>
+
+            <fieldset class="group-box" style="text-align:center; margin-bottom:0;">
+              <legend>폴더 비밀번호 입력</legend>
+              <div style="display:flex; justify-content:center; gap:8px; align-items:center;">
+                <input type="text" id="lock-input" class="xp-input" inputmode="numeric" placeholder="3자리 숫자"
+                  style="width:130px; text-align:center; font-weight:700; letter-spacing:3px;"
+                  onkeydown="if(event.key==='Enter') unlockLocker()" />
+                <button class="xp-btn primary" onclick="unlockLocker()">확인(OK)</button>
+              </div>
+              <div id="lock-alert" class="sys-alert"></div>
+            </fieldset>
+          </div>
+        `;
+        const digits = quizChoice.map(v => v ? String(v) : '').join('');
+        if (digits.length === 3) {
+          document.getElementById('lock-input').value = digits;
+        }
+        return;
+      }
+
+      titleEl.textContent = '✉️ 편지.txt - 잠금폴더';
+      addrEl.textContent = '📁 C:\\온점_동아리\\잠금폴더\\편지.txt';
+
+      body.innerHTML = `
+        <div class="notepad-page">
+          <div style="font-size:12px; color:#155724; background:#eef9f0; border:1px solid #2e8540; padding:6px 10px; margin-bottom:10px;">
+            🔓 잠금폴더가 열렸습니다. 폴더 안에서 <strong>익명의 편지</strong>를 발견했습니다.
+          </div>
+
+          <div class="white-box letter-scroll" style="margin-top:0;">
+            ${letterLines.map(line => `<div class="letter-line">${line}</div>`).join('')}
+            <div style="margin-top:10px; padding-top:8px; border-top:1px dashed #aaa; font-weight:700; color:#991b1b;">
+              P.S. 3-3-1 / 4-4-1 / 7-3-3 / 8-4-5 / 11-5-1
+            </div>
+          </div>
+
+          <fieldset class="group-box">
+            <legend>암호 해독 입력</legend>
+            <div style="font-size:12.5px; margin-bottom:8px;">편지의 P.S. 암호를 해독해 찾은 5글자를 입력하세요.</div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <input type="text" id="cipher-input" class="xp-input" style="flex:1; min-width:170px;"
+                placeholder="5글자 입력..." onkeydown="if(event.key==='Enter') checkCipher()" />
+              <button class="xp-btn primary" onclick="checkCipher()">확인</button>
+              <button class="xp-btn" id="hint-btn" onclick="hintCipher()"></button>
+            </div>
+            <div id="cipher-alert" class="sys-alert ${cipherSolved ? 'ok' : ''}">
+              ${cipherSolved ? '✅ 해독 완료: “타인과 만남” (C, D 용의자 제외) <button class="xp-btn primary" style="margin-left:8px;" onclick="openWin(\'win-final\')">⚖️ 최종_심문 열기</button>' : ''}
+            </div>
+            <div id="cipher-hint-box" class="sys-alert hint"></div>
+          </fieldset>
+        </div>
+      `;
+
+      updateHintUI();
+    }
+
+    function pickQuiz(qi, num) {
+      quizChoice[qi] = num;
+      renderLockerWindow();
+    }
+
+    function unlockLocker() {
+      const code = document.getElementById('lock-input').value.trim();
+      const alertBox = document.getElementById('lock-alert');
+      if (code === '234') {
+        lockerUnlocked = true;
+        document.getElementById('ico-locker').classList.remove('locked');
+        renderLockerWindow();
+      } else {
+        alertBox.className = 'sys-alert err';
+        alertBox.textContent = '⚠ 비밀번호가 올바르지 않습니다. 퀴즈 1·2·3번의 번호를 다시 확인하세요.';
+      }
+    }
+
+    function checkCipher() {
+      const val = document.getElementById('cipher-input').value.replace(/[\s,.\-_]+/g, '');
+      const alertBox = document.getElementById('cipher-alert');
+      if (val === '타인과만남') {
+        cipherSolved = true;
+        document.getElementById('ico-final').classList.remove('locked');
+        alertBox.className = 'sys-alert ok';
+        alertBox.innerHTML = '✅ 해독 성공: <strong>“타인과 만남”</strong><br>당일 외부인 접촉 정황이 없는 <strong>C, D가 용의자에서 제외</strong>되었습니다! <button class="xp-btn primary" style="margin-top:6px;" onclick="openWin(\'win-final\')">⚖️ 최종_심문 열기</button>';
+        renderSuspects();
+      } else {
+        alertBox.className = 'sys-alert err';
+        alertBox.textContent = '⚠ 일치하지 않습니다. P.S.의 숫자들이 무엇을 의미하는지 다시 확인하거나 [힌트]를 눌러보세요.';
+      }
+    }
+
+    function hintCipher() {
+      if (cipherHintLevel === 0) {
+        cipherHintLevel = 1;
+        cipherHintVisible = true;
+      } else if (cipherHintLevel === 1) {
+        cipherHintLevel = 2;
+        cipherHintVisible = true;
+      } else {
+        cipherHintVisible = !cipherHintVisible;
+      }
+      updateHintUI();
+    }
+
+    function updateHintUI() {
+      const btn = document.getElementById('hint-btn');
+      const hintBox = document.getElementById('cipher-hint-box');
+      if (!btn || !hintBox) return;
+
+      if (cipherHintLevel === 0) {
+        btn.textContent = '힌트 (1/2)';
+        hintBox.style.display = 'none';
+      } else if (cipherHintLevel === 1) {
+        btn.textContent = '추가 힌트 (2/2)';
+        hintBox.style.display = 'block';
+        hintBox.innerHTML =
+          '💡 <strong>1차 힌트 (규칙: 줄 - 단어 - 글자):</strong> 세 숫자는 각각 편지의 <strong>[몇 번째 줄 - 몇 번째 단어 - 몇 번째 글자]</strong>를 뜻합니다. 첫 번째 줄부터 세어 단서를 조합해 보세요.';
+      } else {
+        btn.textContent = cipherHintVisible ? '힌트 숨기기' : '힌트 다시 보기';
+        hintBox.style.display = cipherHintVisible ? 'block' : 'none';
+        hintBox.innerHTML =
+          '💡 <strong>1차 힌트 (규칙: 줄 - 단어 - 글자):</strong> 세 숫자는 각각 편지의 <strong>[몇 번째 줄 - 몇 번째 단어 - 몇 번째 글자]</strong>를 뜻합니다.<br>' +
+          '💡 <strong>2차 힌트:</strong> 단어는 띄어쓰기 단위로 셉니다. 예) <code>3-3-1</code> → 3번째 줄 “저는(1) 누군가와(2) <strong>타</strong>협을(3)...”의 1번째 글자 <strong>‘타’</strong>';
+      }
+    }
+
+    function renderFinal() {
+      const body = document.getElementById('final-body');
+      const titleEl = document.getElementById('final-title');
+
+      if (!cipherSolved) {
+        titleEl.textContent = '⚖️ 최종_심문 (잠김)';
+        body.innerHTML = `
+          <div style="text-align:center; padding:28px 16px;">
+            <div style="font-size:32px; margin-bottom:8px;">⚠️</div>
+            <strong style="color:#990000;">접근이 잠겨 있습니다.</strong>
+            <p style="font-size:12.5px; margin:8px 0 14px;">잠금폴더 속 편지의 암호를 해독해 C, D를 용의선상에서 제외한 뒤 열 수 있습니다.</p>
+            <button class="xp-btn primary" onclick="openWin('win-locker')">📁 잠금폴더 열기</button>
+          </div>
+        `;
+        return;
+      }
+
+      titleEl.textContent = '⚖️ 최종_심문';
+      body.innerHTML = `
+        <fieldset class="group-box">
+          <legend>추리 조건 (용의자 C, D 제외됨)</legend>
+          <ol style="padding-left:18px; font-size:12.5px;">
+            <li>세 사람(B, E, F)은 각각 <strong>진실만 말하거나 거짓만</strong> 말합니다.</li>
+            <li>세 사람 중 <strong>거짓말을 하는 사람은 한 명뿐</strong>입니다.</li>
+            <li>사건 기록에 따르면 <strong>범인은 자신의 행동을 숨기기 위해 거짓 진술을 남겼습니다.</strong></li>
+          </ol>
+        </fieldset>
+
+        <div class="stmt-grid">
+          <div class="stmt-box">
+            <div>
+              <strong style="color:#003399;">B의 진술 (부장)</strong>
+              <p style="margin-top:6px; font-size:13px;">“E는 거짓말을 하고 있으며, F는 진실을 말하고 있습니다.”</p>
+            </div>
+            <button class="xp-btn danger" onclick="accuse('B')">범인은 B다</button>
+          </div>
+
+          <div class="stmt-box">
+            <div>
+              <strong style="color:#003399;">E의 진술 (디자인)</strong>
+              <p style="margin-top:6px; font-size:13px;">“B와 F는 둘 다 거짓말을 하고 있습니다.”</p>
+            </div>
+            <button class="xp-btn danger" onclick="accuse('E')">범인은 E다</button>
+          </div>
+
+          <div class="stmt-box">
+            <div>
+              <strong style="color:#003399;">F의 진술 (예산)</strong>
+              <p style="margin-top:6px; font-size:13px;">“B와 E 중 진실을 말하는 사람은 정확히 한 명입니다.”</p>
+            </div>
+            <button class="xp-btn danger" onclick="accuse('F')">범인은 F다</button>
+          </div>
+        </div>
+
+        <div id="final-alert" class="sys-alert ${caseSolved ? 'ok' : ''}">
+          ${caseSolved ? '🎯 진범 E가 지목되었습니다! <button class="xp-btn primary" style="margin-left:8px;" onclick="openWin(\'win-truth\')">사건의_전말.pdf 열기</button>' : ''}
+        </div>
+      `;
+    }
+
+    function accuse(person) {
+      const alertBox = document.getElementById('final-alert');
+      if (person === 'E') {
+        caseSolved = true;
+        document.getElementById('ico-truth').classList.remove('locked');
+        alertBox.className = 'sys-alert ok';
+        alertBox.innerHTML = '🎯 정확한 추리입니다! 거짓 진술을 남긴 진범은 <strong>E</strong>입니다. <button class="xp-btn primary" style="margin-left:8px;" onclick="openWin(\'win-truth\')">📕 사건의_전말.pdf 열기</button>';
+      } else {
+        alertBox.className = 'sys-alert err';
+        alertBox.textContent = `❌ ${person}가 거짓말쟁이라고 가정하면 '거짓말하는 사람은 1명뿐'이라는 조건과 진술 사이에 모순이 발생합니다.`;
+      }
+    }
+
+    function renderTruth() {
+      const body = document.getElementById('truth-body');
+      if (!caseSolved) {
+        body.innerHTML = `
+          <div class="dialog-page" style="text-align:center; padding:28px 16px;">
+            <div style="font-size:32px; margin-bottom:8px;">⚠️</div>
+            <strong style="color:#990000;">문서가 잠겨 있습니다.</strong>
+            <p style="font-size:12.5px; margin:8px 0 14px;">최종_심문에서 진범을 지목해야 열람할 수 있습니다.</p>
+            <button class="xp-btn primary" onclick="openWin('win-final')">⚖️ 최종_심문 열기</button>
+          </div>
+        `;
+        return;
+      }
+
+      body.innerHTML = `
+        <div class="notepad-page">
+          <div style="border-bottom:2px solid #991b1b; padding-bottom:8px; margin-bottom:12px;">
+            <strong style="color:#991b1b; font-size:16px;">[기밀 해제] 사건의 전말 — 진범: E (디자인 담당)</strong>
+          </div>
+
+          <p style="margin-bottom:10px;">
+            당시 온점은 축제에서 선보일 독자적인 체험형 프로젝트를 준비하고 있었습니다. E는 홍보물과 디자인을 담당하면서 프로젝트의 전체 구성과 세부 내용을 알게 되었습니다. 그러던 중 E는 다른 동아리의 부원과 친분을 쌓게 됩니다. 그 동아리 역시 비슷한 주제로 축제 부스를 준비하고 있었지만, 마땅한 아이디어가 없어 어려움을 겪고 있었습니다.
+          </p>
+          <p style="margin-bottom:10px;">
+            상대 동아리 부원은 E에게 온점의 프로젝트 자료를 보여달라고 부탁했습니다. 그러면서 수학 서술형 평가에 관한 정보를 주겠다고 했습니다. E는 참고만 하겠다는 말과 서술형 정보 제안에 별다른 경계심 없이 일부 자료를 공유했습니다. 하지만 상대 동아리는 이를 바탕으로 온점의 핵심 아이디어와 구성까지 가져가 자신들의 프로젝트에 활용하려 했습니다.
+          </p>
+          <p style="margin-bottom:10px;">
+            E는 뒤늦게 상황을 알아차렸지만, 이미 자료가 전달된 뒤였습니다. 자신이 외부인에게 자료를 넘겼다는 사실이 밝혀지면 책임을 져야 할 것이라고 생각했고, 결국 이를 숨기기로 합니다. E의 알리바이를 살펴보면 그는 동아리실에 잠깐 들렀다 귀가합니다. 이때 C가 동아리 공용 사물함에 넣어놓은 활동일지를 가져간 것입니다.
+          </p>
+          <p style="margin-bottom:12px;">
+            이후 C가 자료 관리 책임을 추궁받고 B와 갈등을 빚는 상황에서도 E는 진실을 밝히지 않았습니다.<br>
+            <strong>E의 동기는 수행평가에서 좋은 점수를 얻고 싶었던 마음과 자신의 잘못이 드러나는 것을 피하려는 이기심이었습니다.</strong>
+          </p>
+
+          <div class="white-box" style="background:#f3f8ff; font-size:12.5px;">
+            <strong>[논리 검증]</strong><br>
+            E만 거짓이고 B·F가 진실일 때: B(“E는 거짓, F는 참”)=참 / E(“B·F 둘 다 거짓”)=거짓 / F(“B·E 중 참 1명”)=참으로 모든 조건이 일치합니다.
+          </div>
+        </div>
+      `;
+    }
+
+    function resetAll() {
+      currentSuspect = 'B';
+      quizChoice = [null, null, null];
+      lockerUnlocked = false;
+      cipherSolved = false;
+      cipherHintLevel = 0;
+      cipherHintVisible = false;
+      caseSolved = false;
+      document.getElementById('ico-locker').classList.add('locked');
+      document.getElementById('ico-final').classList.add('locked');
+      document.getElementById('ico-truth').classList.add('locked');
+
+      document.querySelectorAll('.xp-window').forEach(w => w.classList.remove('open', 'minimized', 'maximized'));
+      arrangeAll();
+      renderSuspects();
+      openWin('win-case');
+      openWin('win-suspects');
+    }
+
+    setupDrag();
+    renderSuspects();
+    updateClock();
+    setInterval(updateClock, 15000);
+    updateTaskbar('win-suspects');
+  </script>
+</body>
+</html>
